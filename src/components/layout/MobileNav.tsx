@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Calendar, Smile, Salad, BedDouble, MessageCircle } from 'lucide-react';
+import { LayoutDashboard, Calendar, Smile, Salad, BedDouble, MessageCircle, Heart } from 'lucide-react';
 
 const mobileNav = [
   { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
   { href: '/dashboard/cycle', label: 'Cycle', icon: Calendar },
   { href: '/assistant', label: 'Luna AI', icon: MessageCircle, highlight: true },
   { href: '/dashboard/mood', label: 'Mood', icon: Smile },
-  { href: '/dashboard/nutrition', label: 'Food', icon: Salad },
+  { href: '/dashboard/partner', label: 'Partner', icon: Heart },
 ];
 
 export default function MobileNav() {
@@ -27,7 +27,7 @@ export default function MobileNav() {
               href={item.href}
               className={`flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all ${
                 isActive ? 'text-white' : 'text-white/40'
-              } ${item.highlight ? 'relative' : ''}`}
+              }`}
             >
               {item.highlight ? (
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center -mt-6 shadow-glow-sm ${
@@ -40,9 +40,7 @@ export default function MobileNav() {
               ) : (
                 <item.icon size={20} className={isActive ? 'text-rose-400' : ''} />
               )}
-              <span className={`text-[10px] font-medium ${item.highlight ? '' : ''}`}>
-                {item.label}
-              </span>
+              <span className="text-[10px] font-medium">{item.label}</span>
             </Link>
           );
         })}
