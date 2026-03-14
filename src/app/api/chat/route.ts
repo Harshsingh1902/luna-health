@@ -1,16 +1,6 @@
-import Groq from 'groq-sdk';
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY!,
-});
-
-// Model options (pick one):
-// 'llama-3.3-70b-versatile'   ← best quality, recommended
-// 'llama-3.1-8b-instant'      ← fastest, lowest latency
-// 'mixtral-8x7b-32768'        ← great for long conversations
-// 'gemma2-9b-it'              ← lightweight, fast
 const GROQ_MODEL = 'llama-3.3-70b-versatile';
 
 const SYSTEM_PROMPT = `You are Luna, an expert AI health companion for women. You are warm, empathetic, knowledgeable, and supportive.
@@ -39,29 +29,28 @@ When users share symptoms or concerns, help them understand potential connection
 
 export async function POST(request: NextRequest) {
   try {
+    const { default: Groq } = await import('groq-sdk');
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
+
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await request.json();
-    const { messages, imageData, imageMediaType } = body;
+    const { messages, imageData } = body;
 
-    // Build Groq messages — note: Groq's free tier doesn't support image inputs
-    // For image analysis, we route to /api/analyze instead
-    const groqMessages: Groq.Chat.ChatCompletionMessageParam[] = [
+    const groqMessages = [
       ...messages.map((m: any) => ({
         role: m.role as 'user' | 'assistant',
         content: m.content as string,
       })),
     ];
 
-    // If image was attached, prepend a note so context isn't lost
     if (imageData) {
       const lastMsg = groqMessages[groqMessages.length - 1];
       lastMsg.content = `[User uploaded an image for analysis] ${lastMsg.content || 'Please provide health insights about the uploaded image.'}`;
     }
 
-    // Streaming response from Groq
     const stream = await groq.chat.completions.create({
       model: GROQ_MODEL,
       messages: [
@@ -79,9 +68,7 @@ export async function POST(request: NextRequest) {
         try {
           for await (const chunk of stream) {
             const text = chunk.choices[0]?.delta?.content ?? '';
-            if (text) {
-              controller.enqueue(encoder.encode(text));
-            }
+            if (text) controller.enqueue(encoder.encode(text));
           }
           controller.close();
         } catch (err) {
