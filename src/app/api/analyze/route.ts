@@ -1,11 +1,5 @@
-import Groq from 'groq-sdk';
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
-
-// Groq's vision-capable model
-const GROQ_VISION_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
 
 const SYSTEM_PROMPT = `You are Luna, an AI health companion for women. When analyzing images:
 - For nutrition labels: break down key nutrients, highlight what's good/bad for hormonal health, and give a recommendation
@@ -23,8 +17,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { imageData, mediaType, prompt } = body;
 
+    const { default: Groq } = await import('groq-sdk');
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
+
     const response = await groq.chat.completions.create({
-      model: GROQ_VISION_MODEL,
+      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         {
@@ -38,7 +35,7 @@ export async function POST(request: NextRequest) {
             },
             {
               type: 'text',
-              text: prompt || 'Please analyze this image and provide relevant health insights for a woman tracking her wellness.',
+              text: prompt || 'Please analyze this image and provide relevant health insights.',
             },
           ],
         },
