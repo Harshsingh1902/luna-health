@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   Moon, LayoutDashboard, Calendar, Smile, Salad,
-  BedDouble, MessageCircle, Settings, LogOut, User
+  BedDouble, MessageCircle, Settings, LogOut, User, Heart
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -18,6 +18,7 @@ const navItems = [
   { href: '/dashboard/mood', label: 'Mood & Symptoms', icon: Smile },
   { href: '/dashboard/nutrition', label: 'Nutrition', icon: Salad },
   { href: '/dashboard/sleep', label: 'Sleep', icon: BedDouble },
+  { href: '/dashboard/partner', label: 'Partner', icon: Heart },
   { href: '/assistant', label: 'Luna AI', icon: MessageCircle, highlight: true },
 ];
 
@@ -91,7 +92,7 @@ export default function Sidebar({ user }: SidebarProps) {
       <div className="px-3 py-4 border-t border-white/5 space-y-1">
         {bottomItems.map((item) => (
           <Link key={item.href} href={item.href}>
-            <div className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all text-white/40 hover:text-white/70 hover:bg-white/4`}>
+            <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all text-white/40 hover:text-white/70 hover:bg-white/4">
               <item.icon size={16} />
               <span className="text-sm">{item.label}</span>
             </div>
